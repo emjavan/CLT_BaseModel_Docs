@@ -2,6 +2,10 @@
 
 > **_Written by LP, updated 11/26/2024 (work in progress)_** 
 
+## Flu model: diagram
+
+![flu_model_diagram](figs/flu_model_diagram.png)
+
 ## Flu model: deterministic differential equations
 - $t \in \mathbb N$: current simulation day
 - $a$: age group, $A$: set of all age groups
@@ -11,20 +15,15 @@
 
 **Population-level immunity against _infection_ (derived from H1N1 infections, H3N2 infections, and vaccinations respectively)**
 
-$$
-\frac{dM^I_{a,\ell,H1}(t)}{dt} = \frac{g^I_{H1} p_{H1}(t) \eta(t) R_{a,\ell}(t)}{N_{a,\ell} \left(1 + \sum_{i \in \mathcal I} O_{a,\ell, i} M^I_{a,\ell, i}(t)\right)} - w^I_{H1} M^I_{a,\ell,H1}(t)
-$$
-
-$$
-\frac{dM^I_{a,\ell,H3}(t)}{dt} = \frac{g^I_{H3} p_{H3}(t) \eta(t) R_{a,\ell}(t)}{N_{a,\ell} \left(1 + \sum_{i \in \mathcal I} O_{a,\ell, i} M^I_{a,\ell, i}(t)\right)} - w^I_{H3} M^I_{a,\ell,H3}(t)
-$$
-
-$$
-\frac{dM^I_{a,\ell,V}(t)}{dt} = g^I_V V(t - \delta) - w^I_V M^I_{a,\ell,V}(t)
-$$
+\begin{align}
+\frac{dM^I_{a,\ell,H1}(t)}{dt} &= \frac{g^I_{H1} p_{H1}(t) \eta(t) R_{a,\ell}(t)}{N_{a,\ell} \left(1 + \sum_{i \in \mathcal I} O_{a,\ell, i} M^I_{a,\ell, i}(t)\right)} - w^I_{H1} M^I_{a,\ell,H1}(t) \\
+\frac{dM^I_{a,\ell,H3}(t)}{dt} &= \frac{g^I_{H3} p_{H3}(t) \eta(t) R_{a,\ell}(t)}{N_{a,\ell} \left(1 + \sum_{i \in \mathcal I} O_{a,\ell, i} M^I_{a,\ell, i}(t)\right)} - w^I_{H3} M^I_{a,\ell,H3}(t) \\
+\frac{dM^I_{a,\ell,V}(t)}{dt} &= g^I_V V(t - \delta) - w^I_V M^I_{a,\ell,V}(t)
+\end{align}
 
 where
 
+- $\eta$: rate at which recovered individuals become susceptible, so that $1/\eta$ is the average number of days a person is totally immune from reinfection until being susceptible again.
 - $g^I_{H1}$: factor by which population-level immunity against infection grows after each H1N1 case that recovers.
 - $g^I_{H3}$: factor by which population-level immunity against infection grows after each H3N2 case that recovers.
 - $g^I_V$: factor by which population-level immunity against infection grows after each vaccination.
@@ -38,17 +37,11 @@ where
 
 **Population-level immunity against _hospitalization_ (derived from H1N1 infections, H3N2 infections, and vaccinations respectively)**
 
-$$
-\frac{dM^H_{a,\ell,H1}(t)}{dt} = \frac{g^H_{H1} p_{H1}(t) \eta(t) R_{a,\ell}(t)}{N_{a,\ell} \left(1 + \sum_{i \in \mathcal{I}} O_{a,\ell, i} M^H_{a,\ell, i}(t)\right)} - w^H_{H1} M^H_{a,\ell,H1}(t)
-$$
-
-$$
-\frac{dM^H_{a,\ell,H3}(t)}{dt} = \frac{g^H_{H3} p_{H3}(t) \eta(t) R_{a,\ell}(t)}{N_{a,\ell} \left(1 + \sum_{i \in \mathcal{I}} O_{a,\ell, i} M^H_{a,\ell, i}(t)\right)} - w^H_{H3} M^H_{a,\ell,H3}(t)
-$$
-
-$$
-\frac{dM^H_{a,\ell,V}(t)}{dt} = g^H_V V(t) - w^H_V M^H_{a,\ell,V}(t)
-$$
+\begin{align}
+\frac{dM^H_{a,\ell,H1}(t)}{dt} &= \frac{g^H_{H1} p_{H1}(t) \eta(t) R_{a,\ell}(t)}{N_{a,\ell} \left(1 + \sum_{i \in \mathcal{I}} O_{a,\ell, i} M^H_{a,\ell, i}(t)\right)} - w^H_{H1} M^H_{a,\ell,H1}(t) \\
+\frac{dM^H_{a,\ell,H3}(t)}{dt} &= \frac{g^H_{H3} p_{H3}(t) \eta(t) R_{a,\ell}(t)}{N_{a,\ell} \left(1 + \sum_{i \in \mathcal{I}} O_{a,\ell, i} M^H_{a,\ell, i}(t)\right)} - w^H_{H3} M^H_{a,\ell,H3}(t) \\
+\frac{dM^H_{a,\ell,V}(t)}{dt} &= g^H_V V(t) - w^H_V M^H_{a,\ell,V}(t)
+\end{align}
 
 where
 
@@ -62,51 +55,30 @@ where
 
 **Compartment equations**
 
-$$
-\frac{dS_{a,\ell}(t)}{dt} = \underbrace{\eta R_{a,\ell}(t)}_{\text{$R$ to $S$}} -\underbrace{S_{a,\ell}(t) \cdot \sum_{a^\prime \in A, \ell^\prime \in L} \frac{\beta(t) \phi_{a, \ell, a^\prime, \ell^\prime}(t) \left[I^S_{a^\prime, \ell^\prime}(t) + r_{IP} I^P_{a^\prime, \ell^\prime}(t) + r_{IA} I^A_{a^\prime, \ell^\prime}(t)\right]}{N_{a^\prime, \ell^\prime} (1 + \boldsymbol{\Lambda^{I, I}(t)})}}_{\text{$S$ to $E$}}
-$$
+\begin{align}
+\frac{dS_{a,\ell}(t)}{dt} &= \underbrace{\eta R_{a,\ell}(t)}_{\text{$R$ to $S$}} -\underbrace{S_{a,\ell}(t) \cdot \sum_{a^\prime \in A, \ell^\prime \in L} \frac{\beta(t) \phi_{a, \ell, a^\prime, \ell^\prime}(t) I^{\text{weighted}}_{a^\prime, \ell^\prime}(t)}{N_{a^\prime, \ell^\prime} (1 + \boldsymbol{\Lambda^{I, I}_{a,\ell}(t)})}}_{\text{$S$ to $E$}} \\
+\frac{dE_{a,\ell}(t)}{dt} &= \underbrace{S_{a,\ell}(t) \cdot \sum_{a^\prime \in A, \ell^\prime \in L} \frac{\beta(t) \phi_{a, \ell, a^\prime, \ell^\prime}(t) I^{\text{weighted}}_{a^\prime, \ell^\prime}(t)}{N_{a^\prime, \ell^\prime} (1 + \boldsymbol{\Lambda^{I, I}_{a,\ell}(t)})}}_{\text{$S$ to $E$}} - \underbrace{\sigma (1-\tau) E_{a,\ell}(t)}_{\text{$E$ to $I^P$}} - \underbrace{\sigma \tau E_{a,\ell}(t)}_{\text{$E$ to $I^A$}} \\
+\frac{dI^P_{a,\ell}(t)}{dt} &= \underbrace{\sigma (1-\tau) E_{a,\ell}(t)}_{\text{$E$ to $I^P$}} - \underbrace{\rho I^P_{a,\ell}(t)}_{\text{$I^P$ to $I^S$}} \\
+\frac{dI^S_{a,\ell}(t)}{dt} &= \underbrace{\rho I^P_{a,\ell}(t)}_{\text{$I^P$ to $I^S$}} - \underbrace{(1-\tilde{\mu}_{a,\ell})\gamma I^S_{a,\ell}(t)}_{\text{$I^S$ to $R$}} - \underbrace{\frac{\zeta \tilde{\mu}_{a,\ell} I^S_{a,\ell}(t)}{1 + \boldsymbol{\Lambda^{H, H}_{a,\ell}(t)}}}_{\text{$I^S$ to $H$}} \\
+\frac{dI^A_{a,\ell}(t)}{dt} &= \underbrace{\sigma \tau E_{a,\ell}(t)}_{\text{$E$ to $I^A$}} - \underbrace{\gamma_{IA} I^A_{a,\ell}(t)}_{\text{$I^A$ to $R$}} \\
+\frac{dH_{a,\ell}(t)}{dt} &= \underbrace{\frac{\zeta \tilde{\mu}_{a,\ell} I^S_{a,\ell}(t)}{1 + \boldsymbol{\Lambda^{H, H}_{a,\ell}(t)}}}_{\text{$I^S$ to $H$}} - \underbrace{(1-\tilde{\nu}_{a,\ell})\gamma_H H_{a,\ell}(t)}_{\text{$H$ to $R$}} - \underbrace{\frac{\pi \tilde{\nu}_{a,\ell} H_{a,\ell}(t)}{1 + \boldsymbol{\Lambda^{H, H}_{a,\ell}(t)}}}_{\text{$H$ to $D$}} \\
+\frac{dR_{a,\ell}(t)}{dt} &= \underbrace{(1-\tilde{\mu}_{a,\ell}) \gamma I^S_{a,\ell}(t)}_{\text{$I^S$ to $R$}} + \underbrace{\gamma_{IA} I^A_{a,\ell}(t)}_{\text{$I^A$ to $R$}} + \underbrace{(1-\tilde{\nu}_{a,\ell})\gamma_H H_{a,\ell}(t)}_{\text{$H$ to $R$}} - \underbrace{\eta R_{a,\ell}(t)}_{\text{$R$ to $S$}} \\
+\frac{dD_{a,\ell}(t)}{dt} &= \underbrace{\frac{\pi \tilde{\nu}_{a,\ell} H_{a,\ell}(t)}{1 + \boldsymbol{\Lambda^{D, H}}_{a,\ell}(t)}}_{\text{$H$ to $D$}} 
+\end{align}
+
+where 
 
 $$
-\frac{dE_{a,\ell}(t)}{dt} = \underbrace{S_{a,\ell}(t) \cdot \sum_{a^\prime \in A, \ell^\prime \in L} \frac{\beta(t) \phi_{a, \ell, a^\prime, \ell^\prime}(t) \left[I^S_{a^\prime, \ell^\prime}(t) + r_{IP} I^P_{a^\prime, \ell^\prime}(t) + r_{IA} I^A_{a^\prime, \ell^\prime}(t)\right]}{N_{a^\prime, \ell^\prime} (1 + \boldsymbol{\Lambda^{I, I}(t)})}}_{\text{$S$ to $E$}} - \underbrace{\sigma (1-\tau) E_{a,\ell}(t)}_{\text{$E$ to $I^P$}} - \underbrace{\sigma \tau E_{a,\ell}(t)}_{\text{$E$ to $I^A$}}
+I^{\text{weighted}}_{a^\prime, \ell^\prime}(t) := \left[I^S_{a^\prime, \ell^\prime}(t) + r_{IP} I^P_{a^\prime, \ell^\prime}(t) + r_{IA} I^A_{a^\prime, \ell^\prime}(t)\right]
 $$
 
-$$
-\frac{dI^P_{a,\ell}(t)}{dt} = \underbrace{\sigma (1-\tau) E_{a,\ell}(t)}_{\text{$E$ to $I^P$}} - \underbrace{\rho I^P_{a,\ell}(t)}_{\text{$I^P$ to $I^S$}}
-$$
+and where we have the following terms that characterize the effect of population-level immunities:
 
-$$
-\frac{dI^S_{a,\ell}(t)}{dt} = \underbrace{\rho I^P_{a,\ell}(t)}_{\text{$I^P$ to $I^S$}} - \underbrace{(1-\tilde{\mu}_{a,\ell})\gamma I^S_{a,\ell}(t)}_{\text{$I^S$ to $R$}} - \underbrace{\frac{\zeta \tilde{\mu}_{a,\ell} I^S_{a,\ell}(t)}{1 + \boldsymbol{\Lambda^{H, H}(t)}}}_{\text{$I^S$ to $H$}}
-$$
-
-$$
-\frac{dI^A_{a,\ell}(t)}{dt} = \underbrace{\sigma \tau E_{a,\ell}(t)}_{\text{$E$ to $I^A$}} - \underbrace{\gamma_{IA} I^A_{a,\ell}(t)}_{\text{$I^A$ to $R$}}
-$$
-
-$$
-\frac{dH_{a,\ell}(t)}{dt} = \underbrace{\frac{\zeta \tilde{\mu}_{a,\ell} I^S_{a,\ell}(t)}{1 + \boldsymbol{\Lambda^{H, H}(t)}}}_{\text{$I^S$ to $H$}} - \underbrace{(1-\tilde{\nu}_{a,\ell})\gamma_H H_{a,\ell}(t)}_{\text{$H$ to $R$}} - \underbrace{\frac{\pi \tilde{\nu}_{a,\ell} H_{a,\ell}(t)}{1 + \boldsymbol{\Lambda^{H, H}(t)}}}_{\text{$H$ to $D$}}
-$$
-
-$$
-\frac{dR_{a,\ell}(t)}{dt} = \underbrace{(1-\tilde{\mu}_{a,\ell}) \gamma I^S_{a,\ell}(t)}_{\text{$I^S$ to $R$}} + \underbrace{\gamma_{IA} I^A_{a,\ell}(t)}_{\text{$I^A$ to $R$}} + \underbrace{(1-\tilde{\nu}_{a,\ell})\gamma_H H_{a,\ell}(t)}_{\text{$H$ to $R$}} - \underbrace{\eta R_{a,\ell}(t)}_{\text{$R$ to $S$}}
-$$
-
-$$
-\frac{dD_{a,\ell}(t)}{dt} = \underbrace{\frac{\pi \tilde{\nu}_{a,\ell} H_{a,\ell}(t)}{1 + \boldsymbol{\Lambda^{D, H}}(t)}}_{\text{$H$ to $D$}}
-$$
-
-where we have the following terms that characterize the effect of population-level immunities:
-
-$$
-\boldsymbol{\Lambda^{I, I}(t)} = \left[\boldsymbol{K_{a,\ell}^I}(p(t))\right]^T \boldsymbol{M_{a,\ell}^I}(t)
-$$
-
-$$
-\boldsymbol{\Lambda^{H, H}(t)} = \left[\boldsymbol{K_{a,\ell}^H}(p(t))\right]^T \boldsymbol{M_{a,\ell}^H}(t)
-$$
-
-$$
-\boldsymbol{\Lambda^{D, H}}(t) = \left[\boldsymbol{K_{a,\ell}^D}(p(t))\right]^T\boldsymbol{M_{a,\ell}^H}(t)
-$$
+\begin{align}
+\boldsymbol{\Lambda^{I, I}_{a,\ell}(t)} &= \left[\boldsymbol{K_{a,\ell}^I}(p(t))\right]^T \boldsymbol{M_{a,\ell}^I}(t) \\
+\boldsymbol{\Lambda^{H, H}_{a,\ell}(t)} &= \left[\boldsymbol{K_{a,\ell}^H}(p(t))\right]^T \boldsymbol{M_{a,\ell}^H}(t) \\
+\boldsymbol{\Lambda^{D, H}}_{a,\ell}(t) &= \left[\boldsymbol{K_{a,\ell}^D}(p(t))\right]^T\boldsymbol{M_{a,\ell}^H}(t)
+\end{align}
 
 and where
 
@@ -124,7 +96,6 @@ and where
 - $\boldsymbol{\tilde{\nu}}$, where $\tilde{\nu}_{a, \ell} = \frac{\nu_{a, \ell}\gamma_H}{\pi - \nu_{a, \ell}(\zeta-\gamma_H)}$: adjusted in-hospital mortality rate (as in, proportion who die in the hospital based on age group) actually used in model -- this adjustment is necessary to ensure actual proportion who die in the hospital recapitulates $[\nu_{a, \ell}]$.
 - $\boldsymbol{\nu}$: $\lvert A \rvert \times \lvert L \rvert$ in-hospital mortality rate (proportion who die based on age-risk group $a, \ell$).
 - $\pi$: death rate from hospital, so that $1/\pi$ is the average number of days a person spends in the hospital before dying.
-- $\eta$: rate at which recovered individuals become susceptible, so that $1/\eta$ is the average number of days a person is totally immune from reinfection until being susceptible again.
 
 The following are all $\lvert A \rvert \times \lvert L \rvert \times \lvert \mathcal I \rvert$ matrices:
 
@@ -158,59 +129,28 @@ We model stochastic transitions between compartments using "transition variables
 
 Below we formulate the discretized stochastic transitions. For brevity, we omit the update formulas for $\boldsymbol{M}^H(t)$ since it is analogous to the discretized update for $\boldsymbol{M}^I(t)$. Note that the population-level immunity variables behave as aggregate epidemiological metrics. They are deterministic functions of the simulation state and transitions between compartments.
 
-\begin{multline}
-M_{a, \ell, H1}^I(t + \Delta t) = M_{a, \ell, H1}^I(t) + \\ \left[\frac{g^I_{H1} p_{H1}(t) \cdot \overbrace{y_{R\rightarrow S,  a, \ell}\left(\boldsymbol{\mathcal X}(t), \Delta t, \omega\right)}^{\text{$R$ to $S$}}}{N_{a,\ell} \left(1 + \sum_{i \in \mathcal I} O_{a,\ell, i} M^I_{a,\ell, i}(t)\right)} - w^I_{H1} M^I_{a,\ell,H1}(t)\right] \Delta t
-\end{multline}
+> **_Note: all $y$ and $y^*$-variables depend on $\left(\boldsymbol{\mathcal X}(t), \Delta t, \omega\right)$. For notation simplicity, we define $\boldsymbol{\Xi}_t := \left(\boldsymbol{\mathcal X}(t), \Delta t, \omega\right)$ and write $y$ and $y^*$-variables as functions of $\boldsymbol{\Xi}_t$._**
 
-\begin{multline}
-M_{a, \ell, H3}^I(t + \Delta t) = M_{a, \ell, H3}^I(t) + \\ \left[\frac{g^I_{H3} p_{H3}(t) \cdot \overbrace{y_{R\rightarrow S,  a, \ell}\left(\boldsymbol{\mathcal X}(t), \Delta t, \omega\right)}^{\text{$R$ to $S$}}}{N_{a,\ell} \left(1 + \sum_{i \in \mathcal I} O_{a,\ell, i} M^I_{a,\ell, i}(t)\right)} - w^I_{H3} M^I_{a,\ell,H3}(t)\right] \Delta t
-\end{multline}
-
-$$
-dM^I_{a,\ell,V}(t + \Delta t) = dM^I_{a,\ell,V}(t) + \left[g^I_V V(t - \delta) - w^I_V M^I_{a,\ell,V}(t)\right] \Delta t
-$$
+\begin{align}
+M_{a, \ell, H1}^I(t + \Delta t) &= M_{a, \ell, H1}^I(t) + \left[\frac{g^I_{H1} p_{H1}(t) \cdot \overbrace{y_{R\rightarrow S,  a, \ell}(\boldsymbol{\Xi}_t)}^{\text{$R$ to $S$}}}{N_{a,\ell} \left(1 + \sum_{i \in \mathcal I} O_{a,\ell, i} M^I_{a,\ell, i}(t)\right)} - w^I_{H1} M^I_{a,\ell,H1}(t)\right] \Delta t \\
+M_{a, \ell, H3}^I(t + \Delta t) &= M_{a, \ell, H3}^I(t) + \left[\frac{g^I_{H3} p_{H3}(t) \cdot \overbrace{y_{R\rightarrow S,  a, \ell}(\boldsymbol{\Xi}_t)}^{\text{$R$ to $S$}}}{N_{a,\ell} \left(1 + \sum_{i \in \mathcal I} O_{a,\ell, i} M^I_{a,\ell, i}(t)\right)} - w^I_{H3} M^I_{a,\ell,H3}(t)\right] \Delta t \\
+dM^I_{a,\ell,V}(t + \Delta t) &= dM^I_{a,\ell,V}(t) + \left[g^I_V V(t - \delta) - w^I_V M^I_{a,\ell,V}(t)\right] \Delta t
+\end{align}
 
 $$
 \vdots
 $$
 
-$$
-S_{a,\ell}(t + \Delta t) = S_{a, \ell}(t) + \underbrace{y_{R\rightarrow S, a, \ell}\left(\boldsymbol{\mathcal X}(t), \Delta t, \omega\right)}_{\text{$R$ to $S$}} - \\ \underbrace{y_{S\rightarrow E,  a, \ell}\left(\boldsymbol{\mathcal X}(t), \Delta t, \omega\right)}_{\text{$S$ to $E$}}
-$$
-
-$$
-E_{a,\ell}(t + \Delta t) = E_{a, \ell}(t) + \underbrace{y_{S\rightarrow E,  a, \ell}\left(\boldsymbol{\mathcal X}(t), \Delta t, \omega\right)}_{\text{$S$ to $E$}} - \underbrace{y^*_{E\rightarrow I^P,  a, \ell}\left(\boldsymbol{\mathcal X}(t), \Delta t, \omega\right)}_{\text{$E$ to $I^P$}} - \underbrace{y^*_{E\rightarrow I^A,  a, \ell}\left(\boldsymbol{\mathcal X}(t), \Delta t, \omega\right)}_{\text{$E$ to $I^A$}}
-$$
-
-$$
-I^P_{a,\ell}(t + \Delta t) = I^P_{a,\ell}(t) + \underbrace{y^*_{E\rightarrow I^P,  a, \ell}\left(\boldsymbol{\mathcal X}(t), \Delta t, \omega\right)}_{\text{$E$ to $I^P$}} - \underbrace{y_{I^P \rightarrow I^S,  a, \ell}\left(\boldsymbol{\mathcal X}(t), \Delta t, \omega\right)}_{\text{$I^P$ to $I^S$}}
-$$
-
-$$
-I^A_{a, \ell}(t + \Delta t) = I^A_{a, \ell}(t) + \underbrace{y^*_{E\rightarrow I^A,  a, \ell}\left(\boldsymbol{\mathcal X}(t), \Delta t, \omega\right)}_{\text{$E$ to $I^A$}} - \underbrace{y_{I^A \rightarrow R,  a, \ell}\left(\boldsymbol{\mathcal X}(t), \Delta t, \omega\right)}_{\text{$I^A$ to $R$}}
-$$
-
-$$
-\begin{align*}
-I^S_{a,\ell}(t + \Delta t) = I^S_{a, \ell}(t) &+ \underbrace{y_{E \rightarrow I^S,  a, \ell}\left(\boldsymbol{\mathcal X}(t), \Delta t, \omega\right)}_{\text{$E$ to $I^P$}} \\ &- \underbrace{y^*_{I^S \rightarrow R,  a, \ell}\left(\boldsymbol{\mathcal X}(t), \Delta t, \omega\right)}_{\text{$I^S$ to $R$}} - \underbrace{y^*_{I^S \rightarrow H,  a, \ell}\left(\boldsymbol{\mathcal X}(t), \Delta t, \omega\right)}_{\text{$I^S$ to $H$}}
-\end{align*}
-$$
-
-$$
-\begin{align*}
-H_{a,\ell}(t + \Delta t) = H_{a, \ell}(t) &+ \underbrace{y^*_{I^S \rightarrow H,  a, \ell}\left(\boldsymbol{\mathcal X}(t), \Delta t, \omega\right)}_{\text{$I^S$ to $H$}} \\ &- \underbrace{y^*_{H\rightarrow R,  a, \ell}\left(\boldsymbol{\mathcal X}(t), \Delta t, \omega\right)}_{\text{$H$ to $R$}} - \underbrace{y^*_{H\rightarrow D,  a, \ell}\left(\boldsymbol{\mathcal X}(t), \Delta t, \omega\right)}_{\text{$H$ to $D$}}
-\end{align*}
-$$
-
-$$
-\begin{align*}
-R_{a,\ell}(t + \Delta t) = R_{a, \ell}(t) &+ \underbrace{y^*_{I^S \rightarrow R,  a, \ell}\left(\boldsymbol{\mathcal X}(t), \Delta t, \omega\right)}_{\text{$I^S$ to $R$}} + \underbrace{y^*_{H\rightarrow R,  a, \ell}\left(\boldsymbol{\mathcal X}(t), \Delta t, \omega\right)}_{\text{$H$ to $R$}} \\ &- \underbrace{y_{R\rightarrow S,  a, \ell}\left(\boldsymbol{\mathcal X}(t), \Delta t, \omega\right)}_{\text{$R$ to $S$}}
-\end{align*}
-$$
-
-$$
-D_{a,\ell}(t + \Delta t) = D_{a, \ell}(t) + \underbrace{y_{H\rightarrow D,  a, \ell}\left(\boldsymbol{\mathcal X}(t), \Delta t, \omega\right)}_{\text{$H$ to $D$}}
-$$
+\begin{align}
+S_{a,\ell}(t + \Delta t) &= S_{a, \ell}(t) + \underbrace{y_{R\rightarrow S, a, \ell}(\boldsymbol{\Xi}_t)}_{\text{$R$ to $S$}} - \underbrace{y_{S\rightarrow E,  a, \ell}(\boldsymbol{\Xi}_t)}_{\text{$S$ to $E$}} \\
+E_{a,\ell}(t + \Delta t) &= E_{a, \ell}(t) + \underbrace{y_{S\rightarrow E,  a, \ell}(\boldsymbol{\Xi}_t)}_{\text{$S$ to $E$}} - \underbrace{y^*_{E\rightarrow I^P,  a, \ell}(\boldsymbol{\Xi}_t)}_{\text{$E$ to $I^P$}} - \underbrace{y^*_{E\rightarrow I^A,  a, \ell}(\boldsymbol{\Xi}_t)}_{\text{$E$ to $I^A$}} \\
+I^P_{a,\ell}(t + \Delta t) &= I^P_{a,\ell}(t) + \underbrace{y^*_{E\rightarrow I^P,  a, \ell}(\boldsymbol{\Xi}_t)}_{\text{$E$ to $I^P$}} - \underbrace{y_{I^P \rightarrow I^S,  a, \ell}(\boldsymbol{\Xi}_t)}_{\text{$I^P$ to $I^S$}} \\
+I^A_{a, \ell}(t + \Delta t) &= I^A_{a, \ell}(t) + \underbrace{y^*_{E\rightarrow I^A,  a, \ell}(\boldsymbol{\Xi}_t)}_{\text{$E$ to $I^A$}} - \underbrace{y_{I^A \rightarrow R,  a, \ell}(\boldsymbol{\Xi}_t)}_{\text{$I^A$ to $R$}} \\
+I^S_{a,\ell}(t + \Delta t) &= I^S_{a, \ell}(t) + \underbrace{y_{E \rightarrow I^S,  a, \ell}(\boldsymbol{\Xi}_t)}_{\text{$E$ to $I^P$}} - \underbrace{y^*_{I^S \rightarrow R,  a, \ell}(\boldsymbol{\Xi}_t)}_{\text{$I^S$ to $R$}} - \underbrace{y^*_{I^S \rightarrow H,  a, \ell}(\boldsymbol{\Xi}_t)}_{\text{$I^S$ to $H$}} \\
+H_{a,\ell}(t + \Delta t) &= H_{a, \ell}(t) + \underbrace{y^*_{I^S \rightarrow H,  a, \ell}(\boldsymbol{\Xi}_t)}_{\text{$I^S$ to $H$}} - \underbrace{y^*_{H\rightarrow R,  a, \ell}(\boldsymbol{\Xi}_t)}_{\text{$H$ to $R$}} - \underbrace{y^*_{H\rightarrow D,  a, \ell}(\boldsymbol{\Xi}_t)}_{\text{$H$ to $D$}} \\
+R_{a,\ell}(t + \Delta t) &= R_{a, \ell}(t) + \underbrace{y^*_{I^S \rightarrow R,  a, \ell}(\boldsymbol{\Xi}_t)}_{\text{$I^S$ to $R$}} + \underbrace{y^*_{H\rightarrow R,  a, \ell}(\boldsymbol{\Xi}_t)}_{\text{$H$ to $R$}} - \underbrace{y_{R\rightarrow S,  a, \ell}(\boldsymbol{\Xi}_t)}_{\text{$R$ to $S$}} \\
+D_{a,\ell}(t + \Delta t) &= D_{a, \ell}(t) + \underbrace{y_{H\rightarrow D,  a, \ell}(\boldsymbol{\Xi}_t)}_{\text{$H$ to $D$}} 
+\end{align}
 
 IMPORTANT: the "$*$" superscript indicates that the transition variable has a joint distribution with another transition variable. In general, if a compartment has more than one outgoing transition variable, these transition variables must be modeled jointly. 
 
@@ -220,16 +160,16 @@ Each transition variable depends on a "base count" and a "rate" (which both depe
 
 |             Name            |                                    Transition variable                                   | Base count |                                                                        Rate                                                                       |
 |:---------------------------:|:----------------------------------------------------------------------------------------:|:---------------------------------------------------------:|:------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------:|
-| $R$ to $S$             | $y_{R \rightarrow S, a, \ell}\left(\boldsymbol{\mathcal X}(t), \Delta t, \omega\right)$  | $R_{a, \ell}(t)$                                          | $\eta$                                                                                                                                                                                           |
-| $S$ to $E$                | $y_{S \rightarrow E, a, \ell}\left(\boldsymbol{\mathcal X}(t), \Delta t, \omega\right)$  | $S_{a, \ell}(t)$                                          | $\sum_{a^\prime \in A, \ell^\prime \in L} \frac{\beta(t) \phi_{a, \ell, a^\prime, \ell^\prime}(t)  \left[I^S_{a^\prime, \ell^\prime}(t) + r_{IP} I^P_{a^\prime, \ell^\prime}(t) + r_{IA} I^A_{a^\prime, \ell^\prime}(t)\right]}{N_{a^\prime, \ell^\prime} (1 + \boldsymbol{\Lambda^{I, I}(t)})}$ |
-| $E$ to $I^P$                | $y^*_{E \rightarrow I^P, a, \ell}\left(\boldsymbol{\mathcal X}(t), \Delta t, \omega\right)$  | $E_{a, \ell}(t)$                                          | $\sigma (1 - \tau)$                                                                                                                                                                                         |
-| $E$ to $I^A$                | $y^*_{E \rightarrow I^A, a, \ell}\left(\boldsymbol{\mathcal X}(t), \Delta t, \omega\right)$  | $E_{a, \ell}(t)$                                          | $\sigma \tau$ |
-| $I^P$ to $I^S$                | $y_{IP  \rightarrow I^S, a, \ell}\left(\boldsymbol{\mathcal X}(t), \Delta t, \omega\right)$  | $I^P_{a, \ell}(t)$                                          | $\rho$ |
-| $I^S$ to $R$   | $y^*_{I^S \rightarrow R, a, \ell}\left(\boldsymbol{\mathcal X}(t), \Delta t, \omega\right)$  | $I^S_{a, \ell}(t)$                                          | $(1-\tilde{\mu}_{a,\ell})\gamma$                                                                                                                                                                 |
-| $I^S$ to $H$            | $y^*_{I^S \rightarrow H, a, \ell}\left(\boldsymbol{\mathcal X}(t), \Delta t, \omega\right)$  | $I^S_{a, \ell}(t)$                                          | $\frac{\zeta \tilde{\mu}_{a,\ell} I^S_{a,\ell}(t)}{1 + \boldsymbol{\Lambda^{H, H}(t)}}$                                                                                                            |
-| $I^A$ to $R$            | $y_{I^A \rightarrow R, a, \ell}\left(\boldsymbol{\mathcal X}(t), \Delta t, \omega\right)$  | $I^A_{a, \ell}(t)$                                          | $\gamma_{IA} I^A_{a,\ell}(t)$ |
-| $H$ to $R$ | $y^*_{H \rightarrow R, a, \ell}\left(\boldsymbol{\mathcal X}(t), \Delta t, \omega\right)$  | $H_{a, \ell}(t)$                                          | $(1-\tilde{\nu}_{a,\ell})\gamma_H$                                                                                                                                                 |
-| $H$ to $D$                    | $y^*_{H \rightarrow D, a, \ell}\left(\boldsymbol{\mathcal X}(t), \Delta t, \omega\right)$  | $H_{a, \ell}(t)$                                          | $\frac{\pi \tilde{\nu}_{a,\ell} H_{a,\ell}(t)}{1 + \boldsymbol{\Lambda^{H, H}(t)}}$                                                                                                              |
+| $R$ to $S$             | $y_{R \rightarrow S, a, \ell}(\boldsymbol{\Xi}_t)$  | $R_{a, \ell}(t)$                                          | $\eta$                                                                                                                                                                                           |
+| $S$ to $E$                | $y_{S \rightarrow E, a, \ell}(\boldsymbol{\Xi}_t)$  | $S_{a, \ell}(t)$                                          | $\sum_{a^\prime \in A, \ell^\prime \in L} \frac{\beta(t) \phi_{a, \ell, a^\prime, \ell^\prime}(t)  I^{\text{weighted}}_{a^\prime, \ell^\prime}(t)}{N_{a^\prime, \ell^\prime} (1 + \boldsymbol{\Lambda^{I, I}_{a,\ell}(t)})}$ |
+| $E$ to $I^P$                | $y^*_{E \rightarrow I^P, a, \ell}(\boldsymbol{\Xi}_t)$  | $E_{a, \ell}(t)$                                          | $\sigma (1 - \tau)$                                                                                                                                                                                         |
+| $E$ to $I^A$                | $y^*_{E \rightarrow I^A, a, \ell}(\boldsymbol{\Xi}_t)$  | $E_{a, \ell}(t)$                                          | $\sigma \tau$ |
+| $I^P$ to $I^S$                | $y_{IP  \rightarrow I^S, a, \ell}(\boldsymbol{\Xi}_t)$  | $I^P_{a, \ell}(t)$                                          | $\rho$ |
+| $I^S$ to $R$   | $y^*_{I^S \rightarrow R, a, \ell}(\boldsymbol{\Xi}_t)$  | $I^S_{a, \ell}(t)$                                          | $(1-\tilde{\mu}_{a,\ell})\gamma$                                                                                                                                                                 |
+| $I^S$ to $H$            | $y^*_{I^S \rightarrow H, a, \ell}(\boldsymbol{\Xi}_t)$  | $I^S_{a, \ell}(t)$                                          | $\frac{\zeta \tilde{\mu}_{a,\ell} I^S_{a,\ell}(t)}{1 + \boldsymbol{\Lambda^{H, H}_{a,\ell}(t)}}$                                                                                                            |
+| $I^A$ to $R$            | $y_{I^A \rightarrow R, a, \ell}(\boldsymbol{\Xi}_t)$  | $I^A_{a, \ell}(t)$                                          | $\gamma_{IA} I^A_{a,\ell}(t)$ |
+| $H$ to $R$ | $y^*_{H \rightarrow R, a, \ell}(\boldsymbol{\Xi}_t)$  | $H_{a, \ell}(t)$                                          | $(1-\tilde{\nu}_{a,\ell})\gamma_H$                                                                                                                                                 |
+| $H$ to $D$                    | $y^*_{H \rightarrow D, a, \ell}(\boldsymbol{\Xi}_t)$  | $H_{a, \ell}(t)$                                          | $\frac{\pi \tilde{\nu}_{a,\ell} H_{a,\ell}(t)}{1 + \boldsymbol{\Lambda^{H, H}_{a,\ell}(t)}}$                                                                                                              |
 
 The base count and rate of a transition variable parameterize the distribution that defines its realization. 
 
